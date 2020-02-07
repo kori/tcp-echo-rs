@@ -1,0 +1,5 @@
+[package]
+name = "echo"
+version = "1.0.0"
+authors = ["Luiz de Milon <luiz.de.milon@gmail.com>"]
+edition = "2018"
