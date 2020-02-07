@@ -16,28 +16,23 @@ fn main() {
                 Err(error) => panic!("Problem creating a stream: {:?}", error),
             };
             let mut buffer = [0; 512];
-            // Having connected, now we need to read multiple times, until the connection is closed.
+            // Having connected, now we need to read the stream multiple times, until the connection is closed.
             loop {
-                match stream.read(&mut buffer) {
-                    Ok(_) => {}
-                    Err(error) => match error.kind() {
-                        ErrorKind::BrokenPipe => break,
-                        _ => {}
-                    },
+                if let Err(error) = stream.read(&mut buffer) {
+                    if let ErrorKind::BrokenPipe = error.kind() {
+                        break;
+                    }
                 }
 
                 println!("received: {}", String::from_utf8_lossy(&buffer[..]));
 
-                match stream.write(&buffer[..]) {
-                    Ok(_) => {}
-                    Err(error) => match error.kind() {
-                        ErrorKind::BrokenPipe => break,
-                        _ => {}
-                    },
+                if let Err(error) = stream.write(&buffer[..]) {
+                    if let ErrorKind::BrokenPipe = error.kind() {
+                        break;
+                    }
                 }
-                match stream.flush() {
-                    Ok(_) => {}
-                    Err(error) => panic!("Problem flushing: {:?}", error),
+                if let Err(error) = stream.flush() {
+                    panic!("Problem flushing: {:?}", error);
                 }
             }
         });
